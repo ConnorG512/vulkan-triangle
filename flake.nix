@@ -19,6 +19,9 @@
         vulkan-memory-allocator
         vulkan-loader
         glfw
+        mesa
+
+        libxkbcommon
 
         xorg.libX11
         xorg.libXcursor
@@ -33,9 +36,17 @@
         export LD_LIBRARY_PATH="${
           pkgs.lib.makeLibraryPath [
             pkgs.glfw 
-            pkgs.xorg.libX11
             pkgs.vulkan-validation-layers
             pkgs.vulkan-headers
+            pkgs.mesa
+            
+            pkgs.xorg.libX11
+            pkgs.xorg.libXcursor
+            pkgs.xorg.libXrandr
+            pkgs.xorg.libXi
+            pkgs.xorg.libXinerama
+            pkgs.xorg.libXext
+            pkgs.libxkbcommon
           ]
         }:$LD_LIBRARY_PATH"
       '';
