@@ -7,11 +7,11 @@ const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
 pub const HelloTriangleApplication = struct {
     window: ?*glfw.GLFWwindow = null,
-    instance: vk.VkInstance, 
+    instance: vk.VkInstance = undefined, 
 
     pub fn run(self: *HelloTriangleApplication) !void {
         self.initWindow();
-        initVulkan();
+        self.initVulkan();
         self.mainLoop();
         self.cleanup();
     }
@@ -28,8 +28,8 @@ pub const HelloTriangleApplication = struct {
            std.log.err("GLFW ERROR: {d}\n", .{error_code});
        }
     } 
-    fn initVulkan() void {
-        createInstance();
+    fn initVulkan(self: *HelloTriangleApplication) void {
+        self.createInstance();
     }
     fn mainLoop(self: *HelloTriangleApplication) void {
         assert(self.window != null);
@@ -51,8 +51,8 @@ pub const HelloTriangleApplication = struct {
             .apiVersion = vk.VK_API_VERSION_1_0,
         };
 
-        const glfw_extension_count: c_int = 0;
-        const glfw_extentions: [*c]u8 = undefined;
+        var glfw_extension_count: u32 = 0;
+        var glfw_extentions: [*c][*c]const u8 = undefined;
         glfw_extentions = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
         const createInfo = vk.VkInstanceCreateInfo {
@@ -62,7 +62,7 @@ pub const HelloTriangleApplication = struct {
             .ppEnabledExtensionNames = glfw_extentions,
             .enabledLayerCount = 0,
         };
-        if(vk.vkCreateInstance(&createInfo, null, self.instance) != vk.VK_SUCCESS) {
+        if(vk.vkCreateInstance(&createInfo, null, &self.instance) != vk.VK_SUCCESS) {
             log.err("Could not create Vulkan instance!\n", .{});
         }
     }
