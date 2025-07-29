@@ -5,6 +5,10 @@ const log = std.log;
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
+const validation_layers: [*c][:0]const u8 = {
+    "VK_LAYER_KHRONOS_validation";
+};
+
 pub const HelloTriangleApplication = struct {
     window: ?*glfw.GLFWwindow = null,
     instance: vk.VkInstance = undefined, 
