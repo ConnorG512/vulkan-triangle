@@ -38,6 +38,7 @@ pub const HelloTriangleApplication = struct {
         }
     }
     fn cleanup(self: *HelloTriangleApplication) void {
+        vk.vkDestroyInstance(self.instance, null);
         glfw.glfwDestroyWindow(self.window);
         glfw.glfwTerminate();
     }
