@@ -28,7 +28,7 @@
         xorg.libXext
       ];
       
-      shellhook = ''
+      shellHook = ''
         echo "Entering vulkan triangle dev shell..."
         export LD_LIBRARY_PATH="${
           pkgs.lib.makeLibraryPath [
