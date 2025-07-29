@@ -96,7 +96,7 @@ pub const HelloTriangleApplication = struct {
         var available_layers: [128]vk.VkLayerProperties = undefined;
         vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers);
         
-        const layer_name: []const u8 = undefined;
+        // const layer_name: []const u8 = undefined;
 
         return false;
     }
