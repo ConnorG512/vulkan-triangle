@@ -6,7 +6,7 @@ const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
 pub const HelloTriangleApplication = struct {
     window: ?*glfw.GLFWwindow = null,
-    vkInstance: vk.VkInstance, 
+    instance: vk.VkInstance, 
 
     pub fn run(self: *HelloTriangleApplication) !void {
         self.initWindow();
@@ -40,7 +40,7 @@ pub const HelloTriangleApplication = struct {
         glfw.glfwDestroyWindow(self.window);
         glfw.glfwTerminate();
     }
-    fn createInstance() void {
+    fn createInstance(self: *HelloTriangleApplication) void {
         const appinfo = vk.VkApplicationInfo {
             .sType = vk.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pApplicationName = "Vulkan Triangle",
@@ -61,5 +61,6 @@ pub const HelloTriangleApplication = struct {
             .ppEnabledExtensionNames = glfw_extentions,
             .enabledLayerCount = 0,
         };
+        vk.vkCreateInstance(&createInfo, null, self.instance);
     }
 };
