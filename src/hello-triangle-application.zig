@@ -61,7 +61,7 @@ pub const HelloTriangleApplication = struct {
             log.err("Cannot get instance extension properties!\n", .{});
         }
         log.debug("Extention Count: {d}", .{extension_count});
-        var extension_properties: [128]vk.VkExtensionProperties = undefined;
+        var extension_properties: [64]vk.VkExtensionProperties = undefined;
         if (vk.vkEnumerateInstanceExtensionProperties(null, &extension_count, &extension_properties) != vk.VK_SUCCESS) {
             log.err("Cannot get instance extension properties!\n", .{});
         }
@@ -76,5 +76,16 @@ pub const HelloTriangleApplication = struct {
         if(vk.vkCreateInstance(&createInfo, null, &self.instance) != vk.VK_SUCCESS) {
             log.err("Could not create Vulkan instance!\n", .{});
         }
+    }
+    fn checkValidationLayerSupport() bool {
+        var layer_count: u32 = 0;
+        vk.vkEnumerateInstanceLayerProperties(&layer_count, null);
+        
+        var available_layers: [128]vk.VkLayerProperties = undefined;
+        vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers);
+        
+        const layer_name: []const u8 = undefined;
+
+        return false;
     }
 };
