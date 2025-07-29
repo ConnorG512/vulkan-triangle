@@ -19,6 +19,13 @@
         vulkan-memory-allocator
         vulkan-loader
         glfw
+
+        xorg.libX11
+        xorg.libXcursor
+        xorg.libXrandr
+        xorg.libXi
+        xorg.libXinerama
+        xorg.libXext
       ];
     };
   };
