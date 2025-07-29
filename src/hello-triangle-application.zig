@@ -56,6 +56,16 @@ pub const HelloTriangleApplication = struct {
         var glfw_extentions: [*c][*c]const u8 = undefined;
         glfw_extentions = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
+        var extension_count: u32 = 0;
+        if (vk.vkEnumerateInstanceExtensionProperties(null, &extension_count, null) != vk.VK_SUCCESS) {
+            log.err("Cannot get instance extension properties!\n", .{});
+        }
+        log.debug("Extention Count: {d}", .{extension_count});
+        var extension_properties: [128]vk.VkExtensionProperties = undefined;
+        if (vk.vkEnumerateInstanceExtensionProperties(null, &extension_count, &extension_properties) != vk.VK_SUCCESS) {
+            log.err("Cannot get instance extension properties!\n", .{});
+        }
+
         const createInfo = vk.VkInstanceCreateInfo {
             .sType = vk.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
             .pApplicationInfo = &appinfo,
