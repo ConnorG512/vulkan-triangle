@@ -28,5 +28,16 @@
         xorg.libXext
       ];
     };
+    shellhook = ''
+      echo "Entering vulkan triangle dev shell..."
+      export LD_LIBRARY_PATH="${
+        pkgs.lib.makeLibraryPath [
+          pkgs.glfw 
+          pkgs.xorg.libX11
+          pkgs.vulkan-validation-layers
+          pkgs.vulkan-headers
+        ]
+      }:$LD_LIBRARY_PATH"
+    '';
   };
 }
