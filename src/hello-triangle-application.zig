@@ -9,6 +9,14 @@ const validation_layers: [*c][:0]const u8 = {
     "VK_LAYER_KHRONOS_validation";
 };
 
+var enable_validation_layers: bool = true;
+fn enableValidationMode() void {
+    if (std.builtin.OptimizeMode == .Debug) {
+        return;
+    }
+    enable_validation_layers = false;
+}
+
 pub const HelloTriangleApplication = struct {
     window: ?*glfw.GLFWwindow = null,
     instance: vk.VkInstance = undefined, 
