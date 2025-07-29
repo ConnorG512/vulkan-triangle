@@ -93,11 +93,21 @@ pub const HelloTriangleApplication = struct {
         var layer_count: u32 = 0;
         vk.vkEnumerateInstanceLayerProperties(&layer_count, null);
         
-        var available_layers: [128]vk.VkLayerProperties = undefined;
+        var available_layers: [64]vk.VkLayerProperties = undefined;
         vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers);
         
-        // const layer_name: []const u8 = undefined;
+        for (validation_layers) |current_layer| {
+            var layer_found: bool = false;
 
-        return false;
+            for () |value| {
+
+            }
+        }
+
+        if (!layer_found) {
+            return false;
+        }
+
+        return true;
     }
 };
