@@ -1,5 +1,6 @@
 const std = @import("std");
 const assert = std.debug.assert;
+const log = std.log;
 
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
@@ -61,6 +62,8 @@ pub const HelloTriangleApplication = struct {
             .ppEnabledExtensionNames = glfw_extentions,
             .enabledLayerCount = 0,
         };
-        vk.vkCreateInstance(&createInfo, null, self.instance);
+        if(vk.vkCreateInstance(&createInfo, null, self.instance) != vk.VK_SUCCESS) {
+            log.err("Could not create Vulkan instance!\n", .{});
+        }
     }
 };
