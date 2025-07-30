@@ -27,6 +27,7 @@ fn enableValidationMode() void {
 pub const HelloTriangleApplication = struct {
     window: ?*glfw.GLFWwindow = null,
     instance: vk.VkInstance = undefined, 
+    arena_alloc: *std.heap.ArenaAllocator,
 
     pub fn run(self: *HelloTriangleApplication) !void {
         defer self.cleanup();
@@ -107,14 +108,22 @@ pub const HelloTriangleApplication = struct {
             log.err("Could not create Vulkan instance!\n", .{});
             return error.could_not_create_instance;
         }
-        if (enable_validation_layers and !checkValidationLayerSupport()) {
+        if (enable_validation_layers and self.checkValidationLayerSupport() catch unreachable) {
             return error.no_validation_layers;
         }
     }
-    fn checkValidationLayerSupport() bool {
+    fn checkValidationLayerSupport(self: *HelloTriangleApplication) !bool {
         var layer_count: u32 = 0;
-        var available_layers: [64]vk.VkLayerProperties = undefined;
-        const result = vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers); 
+        {
+            const result = vk.vkEnumerateInstanceLayerProperties(&layer_count, null); 
+            if (result != vk.VK_SUCCESS) {
+                log.err("Could not Enumerate Instance! {s}\n", .{vkParseResult(result)});
+                return false;
+            }
+        }
+        const available_layers = try self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count);
+        // var available_layers: [layer_count]vk.VkLayerProperties = undefined;
+        const result = vk.vkEnumerateInstanceLayerProperties(&layer_count, available_layers.ptr); 
         if (result != vk.VK_SUCCESS) {
             log.err("Could not Enumerate Instance! {s}\n", .{vkParseResult(result)});
             return false;

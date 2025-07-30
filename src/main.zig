@@ -5,7 +5,12 @@ const std = @import("std");
 const log = std.log;
 
 pub fn main() !void {
-    var instance = app {};
-
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    
+    var instance = app {
+        .arena_alloc = &arena,
+    };
+    
     try instance.run();
 }
