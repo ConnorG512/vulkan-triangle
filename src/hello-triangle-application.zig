@@ -99,6 +99,7 @@ pub const HelloTriangleApplication = struct {
 
             if (std.mem.eql(u8, current_layer, validation_layers)) {
                 layer_found = true;
+                log.debug("Validation layer found!\n", .{});
                 break;
             }
         }
