@@ -91,16 +91,15 @@ pub const HelloTriangleApplication = struct {
     }
     fn checkValidationLayerSupport() bool {
         var layer_count: u32 = 0;
-        vk.vkEnumerateInstanceLayerProperties(&layer_count, null);
-        
         var available_layers: [64]vk.VkLayerProperties = undefined;
         vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers);
         
-        for (validation_layers) |current_layer| {
-            var layer_found: bool = false;
+        var layer_found: bool = false;
+        for (available_layers) |current_layer| {
 
-            for () |value| {
-
+            if (std.mem.eql(u8, current_layer, validation_layers)) {
+                layer_found = true;
+                break;
             }
         }
 
