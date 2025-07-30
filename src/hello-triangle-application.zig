@@ -11,7 +11,7 @@ const validation_layers = [_][]const u8 {
 
 const VulkanError = error {
     no_validation_layers,
-    error1,
+    could_not_create_instance,
 };
 
 var enable_validation_layers: bool = true;
@@ -31,7 +31,15 @@ pub const HelloTriangleApplication = struct {
 
         self.initWindow();
         self.initVulkan() catch |err| {
-            std.log.err("Vulkan Error: {}\n", .{err});
+            switch (err) {
+                error.could_not_create_instance => {
+                    log.err("Vulkan Error: {}\n", .{err});
+                    return error.could_not_create_instance;
+                },
+                error.no_validation_layers => {
+                    log.debug("Vulkan Warning: No validation layers\n", .{});
+                },
+            }
         };
         self.mainLoop();
     }
@@ -95,6 +103,7 @@ pub const HelloTriangleApplication = struct {
         };
         if(vk.vkCreateInstance(&createInfo, null, &self.instance) != vk.VK_SUCCESS) {
             log.err("Could not create Vulkan instance!\n", .{});
+            return error.could_not_create_instance;
         }
         if (enable_validation_layers and !checkValidationLayerSupport()) {
             return error.no_validation_layers;
