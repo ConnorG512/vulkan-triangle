@@ -5,8 +5,13 @@ const log = std.log;
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
-const validation_layers: [*c][:0]const u8 = {
-    "VK_LAYER_KHRONOS_validation";
+const validation_layers = [_][]const u8 {
+    "VK_LAYER_KHRONOS_validation",
+};
+
+const VulkanError = error {
+    no_validation_layers,
+    error1,
 };
 
 var enable_validation_layers: bool = true;
@@ -22,10 +27,13 @@ pub const HelloTriangleApplication = struct {
     instance: vk.VkInstance = undefined, 
 
     pub fn run(self: *HelloTriangleApplication) !void {
+        defer self.cleanup();
+
         self.initWindow();
-        self.initVulkan();
+        self.initVulkan() catch |err| {
+            std.log.err("Vulkan Error: {}\n", .{err});
+        };
         self.mainLoop();
-        self.cleanup();
     }
     fn initWindow(self: *HelloTriangleApplication) void {
        _ = glfw.glfwInit();
@@ -40,8 +48,8 @@ pub const HelloTriangleApplication = struct {
            std.log.err("GLFW ERROR: {d}\n", .{error_code});
        }
     } 
-    fn initVulkan(self: *HelloTriangleApplication) void {
-        self.createInstance();
+    fn initVulkan(self: *HelloTriangleApplication) !void {
+        try self.createInstance();
     }
     fn mainLoop(self: *HelloTriangleApplication) void {
         assert(self.window != null);
@@ -54,7 +62,7 @@ pub const HelloTriangleApplication = struct {
         glfw.glfwDestroyWindow(self.window);
         glfw.glfwTerminate();
     }
-    fn createInstance(self: *HelloTriangleApplication) void {
+    fn createInstance(self: *HelloTriangleApplication) VulkanError!void {
         const appinfo = vk.VkApplicationInfo {
             .sType = vk.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pApplicationName = "Vulkan Triangle",
@@ -89,18 +97,18 @@ pub const HelloTriangleApplication = struct {
             log.err("Could not create Vulkan instance!\n", .{});
         }
         if (enable_validation_layers and !checkValidationLayerSupport()) {
-            std.debug.panic("Validation erros are requested but could not find any!", .{});
+            return error.no_validation_layers;
         }
     }
     fn checkValidationLayerSupport() bool {
         var layer_count: u32 = 0;
         var available_layers: [64]vk.VkLayerProperties = undefined;
-        vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers);
+        _ = vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers);
         
         var layer_found: bool = false;
         for (available_layers) |current_layer| {
 
-            if (std.mem.eql(u8, current_layer, validation_layers)) {
+            if (std.mem.eql(u8, &current_layer.layerName, "VK_LAYER_KHRONOS_validation")) {
                 layer_found = true;
                 log.debug("Validation layer found!\n", .{});
                 break;
