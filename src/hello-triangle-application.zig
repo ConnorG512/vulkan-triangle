@@ -112,9 +112,12 @@ pub const HelloTriangleApplication = struct {
     fn checkValidationLayerSupport() bool {
         var layer_count: u32 = 0;
         var available_layers: [64]vk.VkLayerProperties = undefined;
-        _ = vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers);
-        
+        if (vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers) != vk.VK_SUCCESS) {
+            log.err("Could not Enumerate Instance!\n", .{});
+            return false;
+        }
         var layer_found: bool = false;
+
         for (available_layers) |current_layer| {
 
             if (std.mem.eql(u8, &current_layer.layerName, "VK_LAYER_KHRONOS_validation")) {
@@ -123,11 +126,6 @@ pub const HelloTriangleApplication = struct {
                 break;
             }
         }
-
-        if (!layer_found) {
-            return false;
-        }
-
-        return true;
+        return layer_found;
     }
 };
