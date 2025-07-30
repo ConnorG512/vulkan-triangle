@@ -7,7 +7,9 @@ const vkParseResult = @import("vulkan-result-parse.zig").VkResultParse.parseResu
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
-const validation_layers = "VK_LAYER_KHRONOS_validation";
+const validation_layers = [_][:0]const u8 {
+    "VK_LAYER_KHRONOS_validation",
+};
 
 const VulkanError = error {
     no_validation_layers,
@@ -99,13 +101,19 @@ pub const HelloTriangleApplication = struct {
             log.err("Cannot get instance extension properties!", .{});
         }
 
-        const createInfo = vk.VkInstanceCreateInfo {
+        var createInfo = vk.VkInstanceCreateInfo {
             .sType = vk.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
             .pApplicationInfo = &appinfo,
             .enabledExtensionCount = glfw_extension_count,
             .ppEnabledExtensionNames = glfw_extentions,
-            .enabledLayerCount = 0,
         };
+        if (enable_validation_layers) {
+            createInfo.enabledLayerCount = @as(u32, validation_layers.len);
+            createInfo.ppEnabledLayerNames = validation_layers;
+        } else {
+            createInfo.enabledLayerCount = 0;
+        }
+
         if(vk.vkCreateInstance(&createInfo, null, &self.instance) != vk.VK_SUCCESS) {
             log.err("Could not create Vulkan instance!", .{});
             return error.could_not_create_instance;
