@@ -132,10 +132,10 @@ pub const HelloTriangleApplication = struct {
             return false;
         }
         var layer_found: bool = false;
-
+        
         for (available_layers) |current_layer| {
 
-            if (std.mem.eql(u8, &current_layer.layerName, "VK_LAYER_KHRONOS_validation")) {
+            if (std.mem.eql(u8, &current_layer.layerName, validation_layers)) {
                 layer_found = true;
                 log.debug("Validation layer found!", .{});
                 break;
