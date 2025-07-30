@@ -7,9 +7,7 @@ const vkParseResult = @import("vulkan-result-parse.zig").VkResultParse.parseResu
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
-const validation_layers = [_][]const u8 {
-    "VK_LAYER_KHRONOS_validation",
-};
+const validation_layers = "VK_LAYER_KHRONOS_validation";
 
 const VulkanError = error {
     no_validation_layers,
@@ -74,6 +72,10 @@ pub const HelloTriangleApplication = struct {
         glfw.glfwTerminate();
     }
     fn createInstance(self: *HelloTriangleApplication) VulkanError!void {
+        if (enable_validation_layers and self.checkValidationLayerSupport() catch unreachable) {
+            return error.no_validation_layers;
+        }
+
         const appinfo = vk.VkApplicationInfo {
             .sType = vk.VK_STRUCTURE_TYPE_APPLICATION_INFO,
             .pApplicationName = "Vulkan Triangle",
@@ -108,9 +110,6 @@ pub const HelloTriangleApplication = struct {
             log.err("Could not create Vulkan instance!", .{});
             return error.could_not_create_instance;
         }
-        if (enable_validation_layers and self.checkValidationLayerSupport() catch unreachable) {
-            return error.no_validation_layers;
-        }
     }
     fn checkValidationLayerSupport(self: *HelloTriangleApplication) !bool {
         var layer_count: u32 = 0;
@@ -136,6 +135,7 @@ pub const HelloTriangleApplication = struct {
         for (available_layers) |current_layer| {
 
             if (std.mem.eql(u8, &current_layer.layerName, validation_layers)) {
+
                 layer_found = true;
                 log.debug("Validation layer found!", .{});
                 break;
