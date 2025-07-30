@@ -1,17 +1,5 @@
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
-pub const VkErrorList = enum {
-    vk_unknown,
-    vk_not_ready,
-    vk_timeout,
-    vk_event_set,
-    vk_event_reset,
-    vk_incomplete,
-    vk_out_of_device_memory,
-    vk_out_of_host_memory,
-    vk_validation_failed_ext,
-};
-
 pub const VkResultParse = struct {
     pub fn parseResult(error_code: vk.VkResult) []const u8 {
         switch (error_code) {

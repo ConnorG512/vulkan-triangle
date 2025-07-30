@@ -2,7 +2,7 @@ const std = @import("std");
 const assert = std.debug.assert;
 const log = std.log;
 
-const vk_parse = @import("vulkan-result-parse.zig");
+const vkParseResult = @import("vulkan-result-parse.zig").VkResultParse.parseResult;
 
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
@@ -116,7 +116,7 @@ pub const HelloTriangleApplication = struct {
         var available_layers: [64]vk.VkLayerProperties = undefined;
         const result = vk.vkEnumerateInstanceLayerProperties(&layer_count, &available_layers); 
         if (result != vk.VK_SUCCESS) {
-            log.err("Could not Enumerate Instance! {s}\n", .{vk_parse.VkResultParse.parseResult(result)});
+            log.err("Could not Enumerate Instance! {s}\n", .{vkParseResult(result)});
             return false;
         }
         var layer_found: bool = false;
