@@ -88,6 +88,9 @@ pub const HelloTriangleApplication = struct {
         if(vk.vkCreateInstance(&createInfo, null, &self.instance) != vk.VK_SUCCESS) {
             log.err("Could not create Vulkan instance!\n", .{});
         }
+        if (enable_validation_layers and !checkValidationLayerSupport()) {
+            std.debug.panic("Validation erros are requested but could not find any!", .{});
+        }
     }
     fn checkValidationLayerSupport() bool {
         var layer_count: u32 = 0;
