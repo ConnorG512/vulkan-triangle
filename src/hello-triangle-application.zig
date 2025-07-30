@@ -121,6 +121,7 @@ pub const HelloTriangleApplication = struct {
                 return false;
             }
         }
+        assert(layer_count != 0);
         log.debug("Layer Count: {d}", .{layer_count});
         
         const available_layers = try self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count);
