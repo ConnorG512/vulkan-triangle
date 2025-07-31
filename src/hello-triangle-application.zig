@@ -92,13 +92,16 @@ pub const HelloTriangleApplication = struct {
         glfw_extentions = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
         var extension_count: u32 = 0;
-        if (vk.vkEnumerateInstanceExtensionProperties(null, &extension_count, null) != vk.VK_SUCCESS) {
-            log.err("Cannot get instance extension properties!", .{});
+        const extension_count_result: vk.VkResult = vk.vkEnumerateInstanceExtensionProperties(null, &extension_count, null);
+        if (extension_count_result != vk.VK_SUCCESS) {
+            log.err("Cannot get instance extension properties! {s}", .{vkParseResult(extension_count_result)});
         }
         log.debug("Extention Count: {d}", .{extension_count});
+
         var extension_properties: [64]vk.VkExtensionProperties = undefined;
-        if (vk.vkEnumerateInstanceExtensionProperties(null, &extension_count, &extension_properties) != vk.VK_SUCCESS) {
-            log.err("Cannot get instance extension properties!", .{});
+        const extension_properties_result = vk.vkEnumerateInstanceExtensionProperties(null, &extension_count, &extension_properties);
+        if (extension_properties_result != vk.VK_SUCCESS) {
+            log.err("Cannot get instance extension properties! {s}", .{vkParseResult(extension_properties_result)});
         }
 
         var createInfo = vk.VkInstanceCreateInfo {
@@ -114,15 +117,16 @@ pub const HelloTriangleApplication = struct {
             createInfo.enabledLayerCount = 0;
         }
 
-        if(vk.vkCreateInstance(&createInfo, null, &self.instance) != vk.VK_SUCCESS) {
-            log.err("Could not create Vulkan instance!", .{});
+        const create_instance_result: vk.VkResult = vk.vkCreateInstance(&createInfo, null, &self.instance); 
+        if(create_instance_result != vk.VK_SUCCESS) {
+            log.err("Could not create Vulkan instance! {s}", .{vkParseResult(create_instance_result)});
             return error.could_not_create_instance;
         }
     }
     fn checkValidationLayerSupport(self: *HelloTriangleApplication) !bool {
         var layer_count: u32 = 0;
         {
-            const result = vk.vkEnumerateInstanceLayerProperties(&layer_count, null); 
+            const result: vk.VkResult = vk.vkEnumerateInstanceLayerProperties(&layer_count, null); 
             if (result != vk.VK_SUCCESS) {
                 log.err("Could not Enumerate Instance! {s}", .{vkParseResult(result)});
                 return false;
@@ -133,9 +137,9 @@ pub const HelloTriangleApplication = struct {
         
         const available_layers = try self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count);
 
-        const result = vk.vkEnumerateInstanceLayerProperties(&layer_count, available_layers.ptr); 
+        const result: vk.VkResult = vk.vkEnumerateInstanceLayerProperties(&layer_count, available_layers.ptr); 
         if (result != vk.VK_SUCCESS) {
-            log.err("Could not Enumerate Instance! {s}\n", .{vkParseResult(result)});
+            log.err("Could not Enumerate Instance! {s}", .{vkParseResult(result)});
             return false;
         }
         
