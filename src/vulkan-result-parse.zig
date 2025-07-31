@@ -30,6 +30,18 @@ pub const VkResultParse = struct {
             vk.VK_ERROR_VALIDATION_FAILED_EXT => {
                 return "VK_ERROR_VALIDATION_FAILED_EXT";
             },
+            vk.VK_ERROR_EXTENSION_NOT_PRESENT => {
+                return "VK_ERROR_EXTENSION_NOT_PRESENT";
+            },
+            vk.VK_ERROR_INCOMPATIBLE_DRIVER => {
+                return "VK_ERROR_INCOMPATIBLE_DRIVER";
+            },
+            vk.VK_ERROR_INITIALIZATION_FAILED => {
+                return "VK_ERROR_INITIALIZATION_FAILED";
+            },
+            vk.VK_ERROR_LAYER_NOT_PRESENT => {
+                return "VK_ERROR_LAYER_NOT_PRESENT";
+            },
             else => {
                 return "NO_KNOWN_ERROR";
             },
