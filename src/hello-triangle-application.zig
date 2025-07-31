@@ -7,7 +7,7 @@ const vkParseResult = @import("vulkan-result-parse.zig").VkResultParse.parseResu
 const glfw = @cImport(@cInclude("GLFW/glfw3.h"));
 const vk = @cImport(@cInclude("vulkan/vulkan.h"));
 
-const validation_layers = [_][:0]const u8 {
+const validation_layers = [_][*c]const u8 {
     "VK_LAYER_KHRONOS_validation",
 };
 
@@ -109,7 +109,7 @@ pub const HelloTriangleApplication = struct {
         };
         if (enable_validation_layers) {
             createInfo.enabledLayerCount = @as(u32, validation_layers.len);
-            createInfo.ppEnabledLayerNames = validation_layers;
+            createInfo.ppEnabledLayerNames = &validation_layers;
         } else {
             createInfo.enabledLayerCount = 0;
         }
@@ -138,17 +138,23 @@ pub const HelloTriangleApplication = struct {
             log.err("Could not Enumerate Instance! {s}\n", .{vkParseResult(result)});
             return false;
         }
-        var layer_found: bool = false;
         
-        for (available_layers) |current_layer| {
+        for (validation_layers) |current_layer| {
+            var layer_found: bool = false;
+            
+            for (available_layers) |layer_properties| {
+                if (std.mem.eql(u8, std.mem.sliceTo(current_layer, 0), std.mem.sliceTo(&layer_properties.layerName, 0))) {
+                    layer_found = true;
+                    break;
+                }
+            }
 
-            if (std.mem.eql(u8, &current_layer.layerName, validation_layers)) {
-
-                layer_found = true;
-                log.debug("Validation layer found!", .{});
-                break;
+            if (!layer_found) {
+                log.debug("No Vulkan validation layers found", .{});
+                return false;
             }
         }
-        return layer_found;
+
+        return true;
     }
 };
