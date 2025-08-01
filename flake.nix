@@ -29,6 +29,8 @@
         xorg.libXi
         xorg.libXinerama
         xorg.libXext
+
+        lldb_21
       ];
       
       shellHook = ''
