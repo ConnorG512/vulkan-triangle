@@ -111,7 +111,7 @@ pub const HelloTriangleApplication = struct {
             .ppEnabledExtensionNames = glfw_extentions,
         };
         if (enable_validation_layers) {
-            createInfo.enabledLayerCount = @as(u32, validation_layers.len);
+            createInfo.enabledLayerCount = @intCast(validation_layers.len);
             createInfo.ppEnabledLayerNames = &validation_layers;
         } else {
             createInfo.enabledLayerCount = 0;
