@@ -16,6 +16,10 @@ const VulkanError = error {
     could_not_create_instance,
 };
 
+const Allocation_Error = error {
+    failed_to_allocate_layer,
+};
+
 var enable_validation_layers: bool = true;
 fn enableValidationMode() void {
     if (std.builtin.OptimizeMode == .Debug) {
@@ -42,6 +46,10 @@ pub const HelloTriangleApplication = struct {
                 error.no_validation_layers => {
                     log.debug("Vulkan Warning: No validation layers", .{});
                 },
+                error.OutOfMemory => {
+                    log.err("Out of memory error!", .{});
+                    return error.OutOfMemory;
+                }
             }
         };
         self.mainLoop();
@@ -73,8 +81,8 @@ pub const HelloTriangleApplication = struct {
         glfw.glfwDestroyWindow(self.window);
         glfw.glfwTerminate();
     }
-    fn createInstance(self: *HelloTriangleApplication) VulkanError!void {
-        if (enable_validation_layers and self.checkValidationLayerSupport() catch unreachable) {
+    fn createInstance(self: *HelloTriangleApplication) !void {
+        if (enable_validation_layers and !try self.checkValidationLayerSupport()) {
             return error.no_validation_layers;
         }
 
@@ -135,8 +143,7 @@ pub const HelloTriangleApplication = struct {
         assert(layer_count != 0);
         log.debug("Layer Count: {d}", .{layer_count});
         
-        const available_layers = try self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count);
-
+        const available_layers = try self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count); 
         const result: vk.VkResult = vk.vkEnumerateInstanceLayerProperties(&layer_count, available_layers.ptr); 
         if (result != vk.VK_SUCCESS) {
             log.err("Could not Enumerate Instance! {s}", .{vkParseResult(result)});
