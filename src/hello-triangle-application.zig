@@ -184,12 +184,15 @@ pub const HelloTriangleApplication = struct {
     } 
 };
 
-test "c-string-array" {
+test "comparing a c style array of strings to slice" {
+    // Array of C style strings 
+    // :0 denotes null terminated string
     const strings = [_][:0]const u8 {
         "One",
         "Two",
         "Three",
     };
+    // Convert all bytes to a slice not including the null terminator and comparing it to the original value
     try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[0].ptr, 0), "One"));
     try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[1].ptr, 0), "Two"));
     try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[2].ptr, 0), "Three"));
