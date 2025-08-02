@@ -168,4 +168,29 @@ pub const HelloTriangleApplication = struct {
 
         return true;
     }
+    fn getRequiredExtensions() void {
+        // PARTIAL
+        var glfw_extension_count: u32 = 0;
+        var glfw_extentions: [*][*:0]const u8 = undefined;
+        glfw_extentions = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+
+        std.ArrayList([:0]const u8);
+
+        if (enable_validation_layers) {
+
+        }
+
+        return;
+    } 
 };
+
+test "c-string-array" {
+    const strings = [_][:0]const u8 {
+        "One",
+        "Two",
+        "Three",
+    };
+    try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[0].ptr, 0), "One"));
+    try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[1].ptr, 0), "Two"));
+    try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[2].ptr, 0), "Three"));
+}
