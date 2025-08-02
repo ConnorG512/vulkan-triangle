@@ -197,3 +197,4 @@ test "comparing a c style array of strings to slice" {
     try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[1].ptr, 0), "Two"));
     try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[2].ptr, 0), "Three"));
 }
+
