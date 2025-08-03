@@ -11,13 +11,11 @@ const validation_layers = [_][*c]const u8 {
     "VK_LAYER_KHRONOS_validation",
 };
 
-const VulkanError = error {
+const InstanceError = error {
     no_validation_layers,
     could_not_create_instance,
-};
-
-const Allocation_Error = error {
-    failed_to_allocate_layer,
+    out_of_memory,
+    could_not_get_glfw_required_extensions,
 };
 
 var enable_validation_layers: bool = true;
@@ -46,10 +44,14 @@ pub const HelloTriangleApplication = struct {
                 error.no_validation_layers => {
                     log.debug("Vulkan Warning: No validation layers", .{});
                 },
-                error.OutOfMemory => {
+                error.out_of_memory => {
                     log.err("Out of memory error!", .{});
-                    return error.OutOfMemory;
-                }
+                    return error.out_of_memory;
+                },
+                error.could_not_get_glfw_required_extensions => {
+                    log.err("Could not get required glfw Vulkan Extension!", .{});
+                    return error.could_not_get_glfw_required_extensions;
+                },
             }
         };
         self.mainLoop();
@@ -67,7 +69,7 @@ pub const HelloTriangleApplication = struct {
            log.err("GLFW ERROR: {d}", .{error_code});
        }
     } 
-    fn initVulkan(self: *HelloTriangleApplication) !void {
+    fn initVulkan(self: *HelloTriangleApplication) InstanceError!void {
         try self.createInstance();
     }
     fn mainLoop(self: *HelloTriangleApplication) void {
@@ -81,7 +83,7 @@ pub const HelloTriangleApplication = struct {
         glfw.glfwDestroyWindow(self.window);
         glfw.glfwTerminate();
     }
-    fn createInstance(self: *HelloTriangleApplication) !void {
+    fn createInstance(self: *HelloTriangleApplication) InstanceError!void {
         if (enable_validation_layers and !try self.checkValidationLayerSupport()) {
             return error.no_validation_layers;
         }
@@ -131,7 +133,7 @@ pub const HelloTriangleApplication = struct {
             return error.could_not_create_instance;
         }
     }
-    fn checkValidationLayerSupport(self: *HelloTriangleApplication) !bool {
+    fn checkValidationLayerSupport(self: *HelloTriangleApplication) InstanceError!bool {
         var layer_count: u32 = 0;
         {
             const result: vk.VkResult = vk.vkEnumerateInstanceLayerProperties(&layer_count, null); 
@@ -143,7 +145,10 @@ pub const HelloTriangleApplication = struct {
         assert(layer_count != 0);
         log.debug("Layer Count: {d}", .{layer_count});
         
-        const available_layers = try self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count); 
+        const available_layers = self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count) catch |err| {
+            log.err("Allocator Error: {}", .{err});
+            return error.out_of_memory;
+        };
         const result: vk.VkResult = vk.vkEnumerateInstanceLayerProperties(&layer_count, available_layers.ptr); 
         if (result != vk.VK_SUCCESS) {
             log.err("Could not Enumerate Instance! {s}", .{vkParseResult(result)});
@@ -168,19 +173,23 @@ pub const HelloTriangleApplication = struct {
 
         return true;
     }
-    fn getRequiredExtensions() void {
-        // PARTIAL
+    fn getRequiredExtensions(self: *HelloTriangleApplication) InstanceError!std.ArrayList([*][:0]const u8) {
         var glfw_extension_count: u32 = 0;
-        var glfw_extentions: [*][*:0]const u8 = undefined;
+        var glfw_extentions: ?[*c][:0]const u8 = null;
         glfw_extentions = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+        if (glfw_extentions == null) {
+            return error.could_not_get_glfw_required_extensions;
+        }
+        const glfw_extensions_slice = glfw_extentions[0..glfw_extension_count];
 
-        std.ArrayList([:0]const u8);
+        var extensions = try std.ArrayList([*c][:0]const u8).initCapacity(self.arena_alloc, glfw_extensions_slice.len);
+        extensions.appendSlice(glfw_extensions_slice);
 
         if (enable_validation_layers) {
-
+            extensions.append(vk.VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
 
-        return;
+        return extensions;
     } 
 };
 
