@@ -184,7 +184,7 @@ pub const HelloTriangleApplication = struct {
         if (instace_pointer == null) {
             return error.null_glfw_required_extensions;
         }
-        log.debug("(getRequiredExtensions) Valid pointer.", .{});
+        log.debug("(getRequiredExtensions) Valid pointer, extension count: {d}", .{glfw_extension_count});
     } 
 };
 
