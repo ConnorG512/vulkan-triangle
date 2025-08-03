@@ -132,6 +132,7 @@ pub const HelloTriangleApplication = struct {
             log.err("Could not create Vulkan instance! {s}", .{vkParseResult(create_instance_result)});
             return error.could_not_create_instance;
         }
+        
     }
     fn checkValidationLayerSupport(self: *HelloTriangleApplication) InstanceError!bool {
         var layer_count: u32 = 0;
@@ -146,7 +147,7 @@ pub const HelloTriangleApplication = struct {
         log.debug("Layer Count: {d}", .{layer_count});
         
         const available_layers = self.arena_alloc.allocator().alloc(vk.VkLayerProperties, layer_count) catch |err| {
-            log.err("Allocator Error: {}", .{err});
+            log.err("(checkValidationLayerSupport)Allocator Error: {}", .{err});
             return error.out_of_memory;
         };
         const result: vk.VkResult = vk.vkEnumerateInstanceLayerProperties(&layer_count, available_layers.ptr); 
@@ -173,23 +174,8 @@ pub const HelloTriangleApplication = struct {
 
         return true;
     }
-    fn getRequiredExtensions(self: *HelloTriangleApplication) InstanceError!std.ArrayList([*][:0]const u8) {
-        var glfw_extension_count: u32 = 0;
-        var glfw_extentions: ?[*c][:0]const u8 = null;
-        glfw_extentions = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-        if (glfw_extentions == null) {
-            return error.could_not_get_glfw_required_extensions;
-        }
-        const glfw_extensions_slice = glfw_extentions[0..glfw_extension_count];
-
-        var extensions = try std.ArrayList([*c][:0]const u8).initCapacity(self.arena_alloc, glfw_extensions_slice.len);
-        extensions.appendSlice(glfw_extensions_slice);
-
-        if (enable_validation_layers) {
-            extensions.append(vk.VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        }
-
-        return extensions;
+    fn getRequiredExtensions() void {
+        // Stub
     } 
 };
 
