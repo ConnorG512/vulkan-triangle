@@ -15,7 +15,7 @@ const InstanceError = error {
     no_validation_layers,
     could_not_create_instance,
     out_of_memory,
-    could_not_get_glfw_required_extensions,
+    null_glfw_required_extensions,
 };
 
 var enable_validation_layers: bool = true;
@@ -48,9 +48,9 @@ pub const HelloTriangleApplication = struct {
                     log.err("Out of memory error!", .{});
                     return error.out_of_memory;
                 },
-                error.could_not_get_glfw_required_extensions => {
-                    log.err("Could not get required glfw Vulkan Extension!", .{});
-                    return error.could_not_get_glfw_required_extensions;
+                error.null_glfw_required_extensions => {
+                    log.err("Null glfw Vulkan Extension!", .{});
+                    return error.null_glfw_required_extensions;
                 },
             }
         };
@@ -132,6 +132,9 @@ pub const HelloTriangleApplication = struct {
             log.err("Could not create Vulkan instance! {s}", .{vkParseResult(create_instance_result)});
             return error.could_not_create_instance;
         }
+
+        try self.getRequiredExtensions();
+        // log.debug("Extensions: {s}", .{extensions});
         
     }
     fn checkValidationLayerSupport(self: *HelloTriangleApplication) InstanceError!bool {
@@ -174,8 +177,14 @@ pub const HelloTriangleApplication = struct {
 
         return true;
     }
-    fn getRequiredExtensions() void {
-        // Stub
+    fn getRequiredExtensions(_: *HelloTriangleApplication) InstanceError!void {
+        // pub extern fn glfwGetRequiredInstanceExtensions(count: [*c]u32) [*c][*c]const u8;
+        var glfw_extension_count: u32 = 0;
+        const instace_pointer: [*c][*c]const u8 = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+        if (instace_pointer == null) {
+            return error.null_glfw_required_extensions;
+        }
+        log.debug("(getRequiredExtensions) Valid pointer.", .{});
     } 
 };
 
@@ -192,4 +201,5 @@ test "comparing a c style array of strings to slice" {
     try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[1].ptr, 0), "Two"));
     try std.testing.expect(std.mem.eql(u8, std.mem.sliceTo(strings[2].ptr, 0), "Three"));
 }
+
 
