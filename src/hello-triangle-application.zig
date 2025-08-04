@@ -133,7 +133,7 @@ pub const HelloTriangleApplication = struct {
             return error.could_not_create_instance;
         }
 
-        try self.getRequiredExtensions();
+        _ = try self.getRequiredExtensions();
         // log.debug("Extensions: {s}", .{extensions});
         
     }
@@ -177,7 +177,7 @@ pub const HelloTriangleApplication = struct {
 
         return true;
     }
-    fn getRequiredExtensions(self: *HelloTriangleApplication) InstanceError!void {
+    fn getRequiredExtensions(self: *HelloTriangleApplication) InstanceError!std.ArrayList([]const u8) {
         var glfw_extension_count: u32 = 0;
         const raw_extensions_ptr: [*c][*c]const u8 = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
         if (raw_extensions_ptr == null) {
@@ -195,6 +195,8 @@ pub const HelloTriangleApplication = struct {
 
         log.debug("{s}", .{extensions.items[0]});
         log.debug("{s}", .{extensions.items[1]});
+
+        return extensions;
     } 
 };
 
