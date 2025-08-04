@@ -178,13 +178,18 @@ pub const HelloTriangleApplication = struct {
         return true;
     }
     fn getRequiredExtensions(_: *HelloTriangleApplication) InstanceError!void {
-        // pub extern fn glfwGetRequiredInstanceExtensions(count: [*c]u32) [*c][*c]const u8;
         var glfw_extension_count: u32 = 0;
-        const instace_pointer: [*c][*c]const u8 = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-        if (instace_pointer == null) {
+        const raw_extensions_ptr: [*c][*c]const u8 = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+        if (raw_extensions_ptr == null) {
             return error.null_glfw_required_extensions;
         }
-        log.debug("(getRequiredExtensions) Valid pointer, extension count: {d}", .{glfw_extension_count});
+        const safe_outer_extensions_slice: []const [*c]const u8 = raw_extensions_ptr[0..glfw_extension_count];
+        // log.debug("{s}", .{safe_outer_extensions_slice});
+
+        for (safe_outer_extensions_slice) |string| {
+            const calcuated_slice = std.mem.sliceTo(string, 0);
+            log.debug("GLFW Extension: {s}: Size: {d}.", .{calcuated_slice, calcuated_slice.len});
+        }
     } 
 };
 
