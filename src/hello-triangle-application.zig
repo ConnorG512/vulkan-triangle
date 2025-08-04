@@ -177,19 +177,24 @@ pub const HelloTriangleApplication = struct {
 
         return true;
     }
-    fn getRequiredExtensions(_: *HelloTriangleApplication) InstanceError!void {
+    fn getRequiredExtensions(self: *HelloTriangleApplication) InstanceError!void {
         var glfw_extension_count: u32 = 0;
         const raw_extensions_ptr: [*c][*c]const u8 = glfw.glfwGetRequiredInstanceExtensions(&glfw_extension_count);
         if (raw_extensions_ptr == null) {
             return error.null_glfw_required_extensions;
         }
-        const safe_outer_extensions_slice: []const [*c]const u8 = raw_extensions_ptr[0..glfw_extension_count];
-        // log.debug("{s}", .{safe_outer_extensions_slice});
 
-        for (safe_outer_extensions_slice) |string| {
-            const calcuated_slice = std.mem.sliceTo(string, 0);
-            log.debug("GLFW Extension: {s}: Size: {d}.", .{calcuated_slice, calcuated_slice.len});
+        var extensions = std.ArrayList([]const u8).init(self.arena_alloc.allocator());
+        
+        for (raw_extensions_ptr[0..glfw_extension_count]) |string| {
+            const extention_slice: []const u8 = std.mem.sliceTo(string, 0);
+            extensions.append(extention_slice) catch {
+                return error.out_of_memory;
+            };
         }
+
+        log.debug("{s}", .{extensions.items[0]});
+        log.debug("{s}", .{extensions.items[1]});
     } 
 };
 
