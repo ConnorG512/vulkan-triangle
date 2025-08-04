@@ -134,7 +134,6 @@ pub const HelloTriangleApplication = struct {
         }
 
         _ = try self.getRequiredExtensions();
-        // log.debug("Extensions: {s}", .{extensions});
         
     }
     fn checkValidationLayerSupport(self: *HelloTriangleApplication) InstanceError!bool {
